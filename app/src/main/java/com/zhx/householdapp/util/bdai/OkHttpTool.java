@@ -12,7 +12,6 @@ public class OkHttpTool {
     /**
      * 同步get请求
      * @param url
-     * @return
      */
     public String Get(String url){
         String msg = null;
