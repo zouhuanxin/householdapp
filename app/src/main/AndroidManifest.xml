@@ -2,9 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zhx.householdapp">
 
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -15,23 +17,27 @@
 
     <application
         android:name=".app.MyApplication"
-        android:largeHeap="true"
-        android:networkSecurityConfig="@xml/network_config"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
+        android:networkSecurityConfig="@xml/network_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.HouseHoldApp">
-        <activity android:name=".MainActivity">
+<!--        <activity android:name=".activity.smartassistant.SmartAssistantActivity"-->
+<!--            android:screenOrientation="landscape"></activity>-->
+<!--        <activity android:name=".activity.autolight.AutoLightActivity"></activity>-->
+        <activity android:name=".activity.smartassistant.SmartAssistantActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".service.SnapService"></service>
-        <service android:name=".service.SnapService2"></service>
+
+        <service android:name=".service.SnapService" />
+        <service android:name=".service.SmartAssistantService" />
     </application>
 
 </manifest>

@@ -10,6 +10,7 @@ import android.speech.tts.TextToSpeech
 import androidx.annotation.RequiresApi
 import com.dhh.websocket.RxWebSocket
 import com.dhh.websocket.WebSocketSubscriber
+import com.zhx.householdapp.activity.smartassistant.SmartAssistantActivity
 import com.zhx.householdapp.app.MyApplication
 import com.zhx.householdapp.util.Base64Utils
 import com.zhx.householdapp.util.TimeUtil
@@ -25,10 +26,10 @@ import java.sql.Time
 import java.util.*
 import kotlin.collections.ArrayList
 
-class SnapService : Service() {
+class SmartAssistantService : Service() {
     private var mSpeech: TextToSpeech? = null
     private var camera: Camera? = null
-    private val url = "ws://192.168.0.104:8083/my_SXD_Socket?account=one"
+    private val url = "ws://49.234.123.245:8082/my_SXD_Socket?account=one"
 
     //控制并发
     private var indexDate: Date = Date()
@@ -71,7 +72,7 @@ class SnapService : Service() {
                         if (LightStatus == -1 && !mSpeech!!.isSpeaking) {
                             LightStatus = 1
                             mSpeech!!.speak(
-                                "欢迎进屋，屋内灯光已开启。",
+                                SmartAssistantActivity.weatherInfo,
                                 TextToSpeech.QUEUE_ADD,
                                 null,
                                 "speech"
@@ -127,7 +128,7 @@ class SnapService : Service() {
     fun send(imagedata: String) {
         val msg = JSONObject()
         msg.put("msg", imagedata)
-        msg.put("type", 2)
+        msg.put("type", -1)
         msg.put("to", "one")
         RxWebSocket.send(
             url,
@@ -144,7 +145,7 @@ class SnapService : Service() {
             //判断是否离开屋子关闭灯光
             LightStatus = -1
             mSpeech!!.speak(
-                "屋内没人，关闭灯光。",
+                "一定要多喝水多信息哦。",
                 TextToSpeech.QUEUE_ADD,
                 null,
                 "speech"

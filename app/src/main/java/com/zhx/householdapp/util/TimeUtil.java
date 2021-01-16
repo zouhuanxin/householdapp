@@ -21,5 +21,10 @@ public class TimeUtil {
         return diff;
     }
 
+    public static String getCurrentTime(){
+        Date date = new Date();
+        SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+        return dateFormat.format(date);
+    }
 
 }

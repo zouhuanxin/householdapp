@@ -1,7 +1,6 @@
-package com.zhx.householdapp
+package com.zhx.householdapp.activity.autolight
 
 import android.content.ComponentName
-import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
@@ -12,20 +11,14 @@ import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.dhh.websocket.Config
-import com.dhh.websocket.RxWebSocket
-import com.dhh.websocket.WebSocketSubscriber
+import com.zhx.householdapp.R
 import com.zhx.householdapp.app.MyApplication
-import com.zhx.householdapp.service.SnapService
 import com.zhx.householdapp.util.PermissionUtils
-import kotlinx.android.synthetic.main.activity_main.*
-import okhttp3.WebSocket
-import org.json.JSONObject
-import java.util.concurrent.TimeUnit
+import kotlinx.android.synthetic.main.activity_auto_light.*
 
 
-class MainActivity : AppCompatActivity() {
-    private var mainViewModel: MainViewModel? = null
+class AutoLightActivity: AppCompatActivity() {
+    private var mainViewModel: AutoLightViewModel? = null
     private var mCamera: Camera? = null
     private val mConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -40,8 +33,8 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        setContentView(R.layout.activity_auto_light)
+        mainViewModel = ViewModelProvider(this).get(AutoLightViewModel::class.java)
         PermissionUtils().verifyStoragePermissions(
             this,
             object : PermissionUtils.PermissionCallBack {
@@ -65,16 +58,18 @@ class MainActivity : AppCompatActivity() {
         camreaview.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
                 try {
-                    if (mCamera != null)
+                    if (mCamera != null){
                         mCamera!!.stopPreview()
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
                 mCamera = MyApplication.model!!.beginCamera()
                 mCamera!!.setDisplayOrientation(90)
                 mCamera!!.setPreviewTexture(surface)
+                //mCamera!!.setPreviewDisplay(surfaceCreated)
                 mCamera!!.startPreview()
-                bindService(Intent(this@MainActivity, SnapService::class.java), mConnection, BIND_AUTO_CREATE)
+               // bindService(Intent(this@AutoLightActivity, SnapService::class.java), mConnection, BIND_AUTO_CREATE)
             }
 
             override fun onSurfaceTextureSizeChanged(
@@ -86,6 +81,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                mCamera!!.setPreviewCallback(null)
                 mCamera!!.stopPreview()
                 mCamera!!.release()
                 return true
@@ -101,7 +97,9 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (mCamera != null) {
+            mCamera!!.setPreviewCallback(null)
             mCamera!!.stopPreview()
+            listOf(mCamera!!)
             mCamera!!.release()
         }
     }

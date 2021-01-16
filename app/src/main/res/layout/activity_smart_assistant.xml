@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/time1"
+        android:gravity="center"
+        android:text="00:00"
+        android:textSize="60sp"
+        android:textColor="#ffffff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </TextView>
+
+    <TextView
+        android:id="@+id/time2"
+        android:layout_margin="20dp"
+        android:gravity="top"
+        android:text="0000年00月00日"
+        android:textSize="20sp"
+        android:textColor="#ffffff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </TextView>
+
+    <TextView
+        android:id="@+id/weather"
+        android:layout_margin="20dp"
+        android:gravity="bottom|right"
+        android:text="当前温度00度"
+        android:textSize="20sp"
+        android:textColor="#ffffff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </TextView>
+
+    <TextureView
+        android:id="@+id/camreaview"
+        android:layout_gravity="bottom"
+        android:layout_width="200dp"
+        android:layout_height="200dp" />
+
+
+</FrameLayout>

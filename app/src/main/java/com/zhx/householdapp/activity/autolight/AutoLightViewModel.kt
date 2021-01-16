@@ -1,9 +1,9 @@
-package com.zhx.householdapp
+package com.zhx.householdapp.activity.autolight
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class MainViewModel: ViewModel() {
+class AutoLightViewModel: ViewModel() {
 
     init {
 
