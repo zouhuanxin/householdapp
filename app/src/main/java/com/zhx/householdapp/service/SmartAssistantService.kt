@@ -3,33 +3,23 @@ package com.zhx.householdapp.service
 import android.app.Service
 import android.content.Intent
 import android.hardware.Camera
-import android.media.FaceDetector
 import android.os.Build
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import androidx.annotation.RequiresApi
-import com.dhh.websocket.RxWebSocket
-import com.dhh.websocket.WebSocketSubscriber
 import com.zhx.householdapp.activity.smartassistant.SmartAssistantActivity
 import com.zhx.householdapp.app.MyApplication
 import com.zhx.householdapp.util.Base64Utils
 import com.zhx.householdapp.util.TimeUtil
-import okhttp3.Call
-import okhttp3.WebSocket
+import com.zhx.householdapp.util.bdai.BodyAttr
 import org.json.JSONObject
-import rx.schedulers.Schedulers
-import zhx.hello.usbweightv1.http.Apis
-import zhx.hello.usbweightv1.http.HttpCallBack
-import zhx.hello.usbweightv1.http.OkHttpUtil
-import java.io.IOException
-import java.sql.Time
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 class SmartAssistantService : Service() {
     private var mSpeech: TextToSpeech? = null
     private var camera: Camera? = null
-    private val url = "ws://49.234.123.245:8082/my_SXD_Socket?account=one"
 
     //控制并发
     private var indexDate: Date = Date()
@@ -57,42 +47,7 @@ class SmartAssistantService : Service() {
         mSpeech!!.setPitch(2.0f)
         // 设置语速
         mSpeech!!.setSpeechRate(1.0f)
-        RxWebSocket.get(url)
-            .subscribeOn(Schedulers.newThread())
-            .subscribe(object : WebSocketSubscriber() {
-                override fun onMessage(text: String) {
-                    println("接到信息:" + text)
-                    val rep = JSONObject(text)
-                    if (rep.getJSONObject("msg")
-                            .toString().length > 100 && rep.getJSONObject("msg")
-                            .getInt("person_num") > 0
-                    ) {
-                        addCache(1)
-                        //判断是否在房间内，如果在就不播放了
-                        if (LightStatus == -1 && !mSpeech!!.isSpeaking) {
-                            LightStatus = 1
-                            mSpeech!!.speak(
-                                SmartAssistantActivity.weatherInfo,
-                                TextToSpeech.QUEUE_ADD,
-                                null,
-                                "speech"
-                            )
-                        }
-                    } else {
-                        addCache(-1)
-                    }
-                }
-
-                override fun onOpen(webSocket: WebSocket) {
-                    super.onOpen(webSocket)
-                    Task()
-                }
-
-                override fun onReconnect() {
-                    super.onReconnect()
-                    println("重新链接")
-                }
-            })
+        Task()
     }
 
     //开启抓拍任务
@@ -102,7 +57,7 @@ class SmartAssistantService : Service() {
         if (camera != null) {
             Thread(Runnable {
                 run {
-                    while (true){
+                    while (true) {
                         camera!!.autoFocus(null)
                     }
                 }
@@ -110,12 +65,14 @@ class SmartAssistantService : Service() {
             camera!!.setPreviewCallback(object : Camera.PreviewCallback {
                 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
-                    if (data != null && TimeUtil.subtractionTime(indexDate) > 500) {
+                    if (data != null && TimeUtil.subtractionTime(indexDate) > 600) {
                         indexDate = Date()
                         var previewSize = camera!!.getParameters().getPreviewSize()
                         var raw = Base64Utils.ByteToImage(data, previewSize.width, previewSize.height)
-                        val imagedata = Base64Utils.ByteToBase64(raw)
-                        send(imagedata)
+                        //val imagedata = Base64Utils.ByteToBase64(raw)
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            send(raw)
+                        }
                     }
                 }
             })
@@ -125,15 +82,30 @@ class SmartAssistantService : Service() {
     /**
      * 发送信息
      */
-    fun send(imagedata: String) {
-        val msg = JSONObject()
-        msg.put("msg", imagedata)
-        msg.put("type", -1)
-        msg.put("to", "one")
-        RxWebSocket.send(
-            url,
-            msg.toString()
-        )
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun send(imagedata: ByteArray) {
+        Thread(Runnable {
+            run {
+                val result = BodyAttr.body_byte(imagedata)
+                println("接到消息:" + result)
+                val rep = JSONObject(result)
+                if (rep.toString().length > 100 && rep.getInt("person_num") > 0) {
+                    addCache(1)
+                    //判断是否在房间内，如果在就不播放了
+                    if (LightStatus == -1 && !mSpeech!!.isSpeaking) {
+                        LightStatus = 1
+                        mSpeech!!.speak(
+                            SmartAssistantActivity.weatherInfo,
+                            TextToSpeech.QUEUE_ADD,
+                            null,
+                            "speech"
+                        )
+                    }
+                } else {
+                    addCache(-1)
+                }
+            }
+        }).start()
     }
 
     /**

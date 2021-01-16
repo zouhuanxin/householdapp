@@ -18,6 +18,7 @@ import com.zhx.householdapp.app.MyApplication;
 import com.zhx.householdapp.service.SmartAssistantService;
 import com.zhx.householdapp.util.NavigationManager;
 import com.zhx.householdapp.util.TimeUtil;
+import com.zhx.householdapp.util.bdai.WeatherService;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -131,20 +132,21 @@ public class SmartAssistantActivity extends AppCompatActivity {
     }
 
     private void reqWeather() {
-        OkHttpUtil.Companion.getInstantce().sendGet(Apis.Companion.getGetTodayWeather(), new HttpCallBack() {
+        new Thread(new Runnable() {
             @Override
-            public void Error(@Nullable Call call, @Nullable IOException e) {
-
-            }
-
-            @Override
-            public void Success(@Nullable Call call, @Nullable String res) throws IOException, JSONException {
-                JSONObject rep = new JSONObject(res);
+            public void run() {
+                JSONObject rep = null;
+                try {
+                    rep = new JSONObject(getTodayWeather());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                JSONObject finalRep = rep;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            JSONObject data = rep.getJSONObject("data");
+                            JSONObject data = finalRep.getJSONObject("data");
                             weatherInfo = "当前温度" + data.getString("CurrentTemperature") + "度,最高温" + data.getString("TopTemperature") + "，最低温" + data.getString("BottomTemperature")
                                     + data.getString("cy");
                             StringBuffer buff = new StringBuffer();
@@ -157,7 +159,18 @@ public class SmartAssistantActivity extends AppCompatActivity {
                     }
                 });
             }
-        });
+        }).start();
+    }
+
+    private String getTodayWeather(){
+        JSONObject rep = new JSONObject();
+        try {
+            rep.put("code",200);
+            rep.put("data",new WeatherService().getTodayWeather());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return rep.toString();
     }
 
     @Override

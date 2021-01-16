@@ -7,7 +7,7 @@ class Model {
 
     fun beginCamera(): Camera? {
         if (mCamera == null) {
-            mCamera = Camera.open(1)
+            mCamera = Camera.open()
             return mCamera
         }
         return mCamera
