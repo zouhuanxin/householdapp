@@ -147,11 +147,11 @@ public class SmartAssistantActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             JSONObject data = finalRep.getJSONObject("data");
-                            weatherInfo = "当前温度" + data.getString("CurrentTemperature") + "度,最高温" + data.getString("TopTemperature") + "，最低温" + data.getString("BottomTemperature")
-                                    + data.getString("cy");
+                            weatherInfo = "当前温度" + data.getString("CurrentTemperature") + "度,今日温差:" + data.getString("TopBottomTemperature")
+                                    + data.getString("kq");
                             StringBuffer buff = new StringBuffer();
                             buff.append("当前温度" + data.getString("CurrentTemperature") + "度");
-                            buff.append("\n" + data.getString("TopTemperature") + "/" + data.getString("BottomTemperature"));
+                            buff.append("\n" + data.getString("TopBottomTemperature"));
                             weather.setText(buff);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -162,11 +162,11 @@ public class SmartAssistantActivity extends AppCompatActivity {
         }).start();
     }
 
-    private String getTodayWeather(){
+    private String getTodayWeather() {
         JSONObject rep = new JSONObject();
         try {
-            rep.put("code",200);
-            rep.put("data",new WeatherService().getTodayWeather());
+            rep.put("code", 200);
+            rep.put("data", new WeatherService().getTodayWeather());
         } catch (JSONException e) {
             e.printStackTrace();
         }

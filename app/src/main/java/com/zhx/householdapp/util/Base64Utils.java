@@ -60,7 +60,7 @@ public class Base64Utils {
     public static byte[] ByteToImage(byte[] data,int width,int height){
         YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21, width, height, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        yuvimage.compressToJpeg(new Rect(0, 0, width, height), 100, baos);
+        yuvimage.compressToJpeg(new Rect(0, 0, width, height), 80, baos);
         return baos.toByteArray();
     }
 
